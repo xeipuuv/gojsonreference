@@ -1,4 +1,4 @@
 gojsonreference
 ===============
 
-JSON Reference implementation in Golang
+An implementation of JSON Reference - Go language
