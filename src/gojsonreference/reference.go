@@ -4,7 +4,22 @@
 
 package gojsonreference
 
-import (
+import ()
 
-)
+func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
 
+	var r JsonReference
+	err := r.parse(jsonReferenceString)
+	return r, err
+
+}
+
+type JsonReference struct {
+}
+
+func (r *JsonReference) parse(JsonReferenceString string) error {
+
+	var err error
+
+	return err
+}
