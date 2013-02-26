@@ -4,7 +4,10 @@
 
 package gojsonreference
 
-import ()
+import (
+	"gojsonpointer"
+	"net/url"
+)
 
 func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
 
@@ -15,11 +18,26 @@ func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
 }
 
 type JsonReference struct {
+	referenceUrl     *url.URL
+	referencePointer gojsonpointer.JsonPointer
 }
 
-func (r *JsonReference) parse(JsonReferenceString string) error {
+func (r *JsonReference) GetUrl() *url.URL {
+	return r.referenceUrl
+}
+
+func (r *JsonReference) GetPointer() *gojsonpointer.JsonPointer {
+	return &r.referencePointer
+}
+
+func (r *JsonReference) parse(jsonReferenceString string) error {
 
 	var err error
+
+	r.referenceUrl, err = url.Parse(jsonReferenceString)
+	if err == nil {
+		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
+	}
 
 	return err
 }
