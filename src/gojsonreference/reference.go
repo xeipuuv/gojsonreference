@@ -5,6 +5,7 @@
 package gojsonreference
 
 import (
+	"errors"
 	"gojsonpointer"
 	"net/url"
 	"strings"
@@ -74,4 +75,40 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 	}
 
 	return nil
+}
+
+func Inherits(parent JsonReference, child JsonReference) (*JsonReference, error) {
+
+	if !parent.HasFullUrl {
+		return nil, errors.New("Parent reference must be canonical")
+	}
+
+	if parent.HasFullUrl && child.HasFullUrl {
+		if parent.referenceUrl.Scheme != child.referenceUrl.Scheme {
+			return nil, errors.New("References have different schemes")
+		}
+		if parent.referenceUrl.Host != child.referenceUrl.Host {
+			return nil, errors.New("References have different hosts")
+		}
+	}
+
+	inheritedReference, err := NewJsonReference(parent.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if child.HasFragmentOnly {
+		inheritedReference.referenceUrl.Fragment = child.referencePointer.String()
+		inheritedReference.referencePointer = child.referencePointer
+	}
+	if child.HasUrlPathOnly {
+		inheritedReference.referenceUrl.Path = child.referenceUrl.Path
+	}
+	if child.HasFullUrl {
+		inheritedReference.referenceUrl.Fragment = child.referenceUrl.Fragment
+		inheritedReference.referenceUrl.Path = child.referenceUrl.Path
+	}
+	return &inheritedReference, nil
+
+	return nil, nil
 }
