@@ -35,6 +35,14 @@ func (r *JsonReference) GetPointer() *gojsonpointer.JsonPointer {
 	return &r.referencePointer
 }
 
+func (r *JsonReference) String() string {
+	if r.referenceUrl != nil {
+		return r.referenceUrl.String()
+	}
+
+	return r.referencePointer.String()
+}
+
 func (r *JsonReference) parse(jsonReferenceString string) error {
 
 	var err error
