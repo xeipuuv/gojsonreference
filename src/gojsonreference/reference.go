@@ -7,6 +7,7 @@ package gojsonreference
 import (
 	"gojsonpointer"
 	"net/url"
+	"strings"
 )
 
 func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
@@ -20,6 +21,10 @@ func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
 type JsonReference struct {
 	referenceUrl     *url.URL
 	referencePointer gojsonpointer.JsonPointer
+
+	HasFullUrl      bool
+	HasUrlPathOnly  bool
+	HasFragmentOnly bool
 }
 
 func (r *JsonReference) GetUrl() *url.URL {
@@ -34,10 +39,31 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 
 	var err error
 
-	r.referenceUrl, err = url.Parse(jsonReferenceString)
-	if err == nil {
+	// fragment only
+	if strings.HasPrefix(jsonReferenceString, "#") {
+		r.referencePointer, err = gojsonpointer.NewJsonPointer(jsonReferenceString)
+		if err != nil {
+			return nil
+		}
+		r.HasFragmentOnly = true
+	} else {
+
+		r.referenceUrl, err = url.Parse(jsonReferenceString)
+		if err != nil {
+			return nil
+		}
+
+		if r.referenceUrl.Scheme != "" && r.referenceUrl.Host != "" {
+			r.HasFullUrl = true
+		} else {
+			r.HasUrlPathOnly = true
+		}
+
 		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
+		if err != nil {
+			return nil
+		}
 	}
 
-	return err
+	return nil
 }
