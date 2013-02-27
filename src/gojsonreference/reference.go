@@ -26,6 +26,7 @@ type JsonReference struct {
 	HasFullUrl      bool
 	HasUrlPathOnly  bool
 	HasFragmentOnly bool
+	HasFileScheme   bool
 }
 
 func (r *JsonReference) GetUrl() *url.URL {
@@ -67,6 +68,8 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 		} else {
 			r.HasUrlPathOnly = true
 		}
+
+		r.HasFileScheme = r.referenceUrl.Scheme == "file"
 
 		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
 		if err != nil {
