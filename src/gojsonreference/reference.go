@@ -52,6 +52,7 @@ func (r *JsonReference) String() string {
 	return r.referencePointer.String()
 }
 
+// "Constructor", parses the given string JSON reference
 func (r *JsonReference) parse(jsonReferenceString string) error {
 
 	var err error
@@ -87,6 +88,8 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 	return nil
 }
 
+// Creates a new reference from a parent and a child
+// If the child cannot inherit from the parent, an error is returned
 func Inherits(parent JsonReference, child JsonReference) (*JsonReference, error) {
 
 	if !parent.HasFullUrl {
