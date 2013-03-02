@@ -153,3 +153,19 @@ func TestInheritsValid(t *testing.T) {
 		t.Errorf("Inherits(%s,%s) = %s, expect %s", r1.String(), r2.String(), result.String(), out)
 	}
 }
+
+func TestInheritsInvalid(t *testing.T) {
+
+	in1 := "http://www.test.com/doc.json"
+	in2 := "http://www.test2.com/doc.json#bla"
+
+	r1, _ := NewJsonReference(in1)
+	r2, _ := NewJsonReference(in2)
+
+	_, err := Inherits(r1, r2)
+	if err == nil {
+		t.Errorf("Inherits(%s,%s) should fail", r1.String(), r2.String())
+	}
+
+}
+
