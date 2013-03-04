@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	FRAGMENT_CHAR = `#`
+	const_fragment_char = `#`
 )
 
 func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
@@ -55,7 +55,7 @@ func (r *JsonReference) String() string {
 	}
 
 	if r.HasFragmentOnly {
-		return FRAGMENT_CHAR + r.referencePointer.String()
+		return const_fragment_char + r.referencePointer.String()
 	}
 
 	return r.referencePointer.String()
@@ -67,7 +67,7 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 	var err error
 
 	// fragment only
-	if strings.HasPrefix(jsonReferenceString, FRAGMENT_CHAR) {
+	if strings.HasPrefix(jsonReferenceString, const_fragment_char) {
 		r.referencePointer, err = gojsonpointer.NewJsonPointer(jsonReferenceString[1:])
 		if err != nil {
 			return nil
