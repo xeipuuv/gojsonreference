@@ -1,0 +1,29 @@
+PACKAGE
+
+package gojsonreference
+    import "gojsonreference"
+
+
+TYPES
+
+type JsonReference struct {
+    HasFullUrl      bool
+    HasUrlPathOnly  bool
+    HasFragmentOnly bool
+    HasFileScheme   bool
+    // contains filtered or unexported fields
+}
+
+func Inherits(parent JsonReference, child JsonReference) (*JsonReference, error)
+    Creates a new reference from a parent and a child If the child cannot
+    inherit from the parent, an error is returned
+
+func NewJsonReference(jsonReferenceString string) (JsonReference, error)
+
+func (r *JsonReference) GetPointer() *gojsonpointer.JsonPointer
+
+func (r *JsonReference) GetUrl() *url.URL
+
+func (r *JsonReference) String() string
+
+
