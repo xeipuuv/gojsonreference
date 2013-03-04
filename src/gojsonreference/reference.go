@@ -99,22 +99,22 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 
 // Creates a new reference from a parent and a child
 // If the child cannot inherit from the parent, an error is returned
-func Inherits(parent JsonReference, child JsonReference) (*JsonReference, error) {
+func (r *JsonReference) Inherits(child JsonReference) (*JsonReference, error) {
 
-	if !parent.HasFullUrl {
+	if !r.HasFullUrl {
 		return nil, errors.New("Parent reference must be canonical")
 	}
 
-	if parent.HasFullUrl && child.HasFullUrl {
-		if parent.referenceUrl.Scheme != child.referenceUrl.Scheme {
+	if r.HasFullUrl && child.HasFullUrl {
+		if r.referenceUrl.Scheme != child.referenceUrl.Scheme {
 			return nil, errors.New("References have different schemes")
 		}
-		if parent.referenceUrl.Host != child.referenceUrl.Host {
+		if r.referenceUrl.Host != child.referenceUrl.Host {
 			return nil, errors.New("References have different hosts")
 		}
 	}
 
-	inheritedReference, err := NewJsonReference(parent.String())
+	inheritedReference, err := NewJsonReference(r.String())
 	if err != nil {
 		return nil, err
 	}
