@@ -1,7 +1,7 @@
 PACKAGE
 
 package gojsonreference
-    import "gojsonreference"
+    import "encoding/json/jsonreference"
 
 
 TYPES
