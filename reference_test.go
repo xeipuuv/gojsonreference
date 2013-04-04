@@ -23,7 +23,7 @@
 // 
 // created      	03-03-2013
 
-package jsonreference
+package gojsonreference
 
 import (
 	"testing"

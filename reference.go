@@ -23,11 +23,11 @@
 // 
 // created      	26-02-2013
 
-package jsonreference
+package gojsonreference
 
 import (
-	"encoding/json/jsonpointer"
 	"errors"
+	"github.com/sigu-399/gojsonpointer"
 	"net/url"
 	"strings"
 )
@@ -46,7 +46,7 @@ func NewJsonReference(jsonReferenceString string) (JsonReference, error) {
 
 type JsonReference struct {
 	referenceUrl     *url.URL
-	referencePointer jsonpointer.JsonPointer
+	referencePointer gojsonpointer.JsonPointer
 
 	HasFullUrl      bool
 	HasUrlPathOnly  bool
@@ -58,7 +58,7 @@ func (r *JsonReference) GetUrl() *url.URL {
 	return r.referenceUrl
 }
 
-func (r *JsonReference) GetPointer() *jsonpointer.JsonPointer {
+func (r *JsonReference) GetPointer() *gojsonpointer.JsonPointer {
 	return &r.referencePointer
 }
 
@@ -82,7 +82,7 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 
 	// fragment only
 	if strings.HasPrefix(jsonReferenceString, const_fragment_char) {
-		r.referencePointer, err = jsonpointer.NewJsonPointer(jsonReferenceString[1:])
+		r.referencePointer, err = gojsonpointer.NewJsonPointer(jsonReferenceString[1:])
 		if err != nil {
 			return nil
 		}
@@ -102,7 +102,7 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 
 		r.HasFileScheme = r.referenceUrl.Scheme == "file"
 
-		r.referencePointer, err = jsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
+		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
 		if err != nil {
 			return nil
 		}
