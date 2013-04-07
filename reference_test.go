@@ -182,3 +182,18 @@ func TestInheritsInvalid(t *testing.T) {
 	}
 
 }
+
+func TestFileScheme(t *testing.T) {
+
+	in1 := "file:///Users/mac/1.json#a"
+	in2 := "file:///Users/mac/2.json#b"
+
+	r1, _ := NewJsonReference(in1)
+	r2, _ := NewJsonReference(in2)
+
+	_, err := r1.Inherits(r2)
+	if err != nil {
+		t.Errorf("Inherits(%s,%s) error %s", r1.String(), r2.String(), err.Error())
+	}
+
+}
