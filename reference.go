@@ -76,6 +76,10 @@ func (r *JsonReference) String() string {
 	return r.referencePointer.String()
 }
 
+func (r *JsonReference) IsCanonical() bool {
+	return (r.HasFileScheme && r.HasFullFilePath) || (!r.HasFileScheme && r.HasFullUrl)
+}
+
 // "Constructor", parses the given string JSON reference
 func (r *JsonReference) parse(jsonReferenceString string) error {
 
