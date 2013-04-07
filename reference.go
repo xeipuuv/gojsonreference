@@ -52,6 +52,7 @@ type JsonReference struct {
 	HasUrlPathOnly  bool
 	HasFragmentOnly bool
 	HasFileScheme   bool
+	HasFullFilePath bool
 }
 
 func (r *JsonReference) GetUrl() *url.URL {
@@ -102,6 +103,8 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 
 		r.HasFileScheme = r.referenceUrl.Scheme == "file"
 
+		r.HasFullFilePath = strings.HasPrefix(r.GetUrl().Path, "//")
+
 		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
 		if err != nil {
 			return nil
@@ -114,6 +117,38 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 // Creates a new reference from a parent and a child
 // If the child cannot inherit from the parent, an error is returned
 func (r *JsonReference) Inherits(child JsonReference) (*JsonReference, error) {
+
+	if !r.HasFileScheme && !child.HasFileScheme {
+		return r.inheritsImplHttp(child)
+	}
+
+	if r.HasFileScheme && child.HasFileScheme {
+		return r.inheritsImplFile(child)
+	}
+
+	return nil, errors.New("References are not compatible")
+
+}
+
+func (r *JsonReference) inheritsImplFile(child JsonReference) (*JsonReference, error) {
+
+	if !r.HasFullFilePath {
+		return nil, errors.New("Parent reference must be canonical")
+	}
+
+	if !child.HasFullFilePath {
+		return nil, errors.New("Child reference must be canonical")
+	}
+
+	inheritedReference, err := NewJsonReference(child.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return &inheritedReference, nil
+}
+
+func (r *JsonReference) inheritsImplHttp(child JsonReference) (*JsonReference, error) {
 
 	if !r.HasFullUrl {
 		return nil, errors.New("Parent reference must be canonical")
