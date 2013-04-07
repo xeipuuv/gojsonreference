@@ -158,7 +158,7 @@ func TestInheritsValid(t *testing.T) {
 	r1, _ := NewJsonReference(in1)
 	r2, _ := NewJsonReference(in2)
 
-	result, err := Inherits(r1, r2)
+	result, err := r1.Inherits(r2)
 	if err != nil {
 		t.Errorf("Inherits(%s,%s) error %s", r1.String(), r2.String(), err.Error())
 	}
@@ -176,10 +176,9 @@ func TestInheritsInvalid(t *testing.T) {
 	r1, _ := NewJsonReference(in1)
 	r2, _ := NewJsonReference(in2)
 
-	_, err := Inherits(r1, r2)
+	_, err := r1.Inherits(r2)
 	if err == nil {
 		t.Errorf("Inherits(%s,%s) should fail", r1.String(), r2.String())
 	}
 
 }
-
