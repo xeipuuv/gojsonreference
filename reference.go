@@ -15,12 +15,12 @@
 // author  			sigu-399
 // author-github 	https://github.com/sigu-399
 // author-mail		sigu.399@gmail.com
-// 
+//
 // repository-name	gojsonreference
 // repository-desc	An implementation of JSON Reference - Go language
-// 
+//
 // description		Main and unique file.
-// 
+//
 // created      	26-02-2013
 
 package gojsonreference
@@ -125,7 +125,7 @@ func (r *JsonReference) Inherits(child JsonReference) (*JsonReference, error) {
 		return r.inheritsImplHttp(child)
 	}
 
-	if r.HasFileScheme && child.HasFileScheme {
+	if r.HasFileScheme && (child.HasFileScheme || child.HasFragmentOnly) {
 		return r.inheritsImplFile(child)
 	}
 
@@ -139,11 +139,13 @@ func (r *JsonReference) inheritsImplFile(child JsonReference) (*JsonReference, e
 		return nil, errors.New("Parent reference must be canonical")
 	}
 
-	if !child.HasFullFilePath {
-		return nil, errors.New("Child reference must be canonical")
+	childReference := child.String()
+
+	if child.HasFragmentOnly {
+		childReference = r.GetUrl().Scheme + "://" + r.GetUrl().Path + child.String()
 	}
 
-	inheritedReference, err := NewJsonReference(child.String())
+	inheritedReference, err := NewJsonReference(childReference)
 	if err != nil {
 		return nil, err
 	}
