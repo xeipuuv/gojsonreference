@@ -191,6 +191,22 @@ func TestFileScheme(t *testing.T) {
 	r1, _ := NewJsonReference(in1)
 	r2, _ := NewJsonReference(in2)
 
+	if r1.HasFragmentOnly != false {
+		t.Errorf("NewJsonReference(%v)::HasFragmentOnly %v expect %v", in1, r1.HasFragmentOnly, false)
+	}
+
+	if r1.HasFileScheme != true {
+		t.Errorf("NewJsonReference(%v)::HasFileScheme %v expect %v", in1, r1.HasFileScheme, true)
+	}
+
+	if r1.HasFullFilePath != true {
+		t.Errorf("NewJsonReference(%v)::HasFullFilePath %v expect %v", in1, r1.HasFullFilePath, true)
+	}
+
+	if r1.IsCanonical() != true {
+		t.Errorf("NewJsonReference(%v)::IsCanonical %v expect %v", in1, r1.IsCanonical, true)
+	}
+
 	_, err := r1.Inherits(r2)
 	if err != nil {
 		t.Errorf("Inherits(%s,%s) error %s", r1.String(), r2.String(), err.Error())
