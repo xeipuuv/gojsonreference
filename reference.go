@@ -106,8 +106,7 @@ func (r *JsonReference) parse(jsonReferenceString string) error {
 		}
 
 		r.HasFileScheme = r.referenceUrl.Scheme == "file"
-
-		r.HasFullFilePath = strings.HasPrefix(r.GetUrl().Path, "//")
+		r.HasFullFilePath = strings.HasPrefix(r.GetUrl().Path, "/")
 
 		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
 		if err != nil {
