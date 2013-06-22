@@ -27,7 +27,7 @@ package gojsonreference
 
 import (
 	"errors"
-	"gojsonpointer"
+	"github.com/sigu-399/gojsonpointer"
 	"net/url"
 	"strings"
 )
