@@ -81,110 +81,48 @@ func (r *JsonReference) IsCanonical() bool {
 }
 
 // "Constructor", parses the given string JSON reference
-func (r *JsonReference) parse(jsonReferenceString string) error {
+func (r *JsonReference) parse(jsonReferenceString string) (err error) {
 
-	var err error
+	r.referenceUrl, err = url.Parse(jsonReferenceString)
+	if err != nil {
+		return
+	}
+	refUrl := r.referenceUrl
 
-	// fragment only
-	if strings.HasPrefix(jsonReferenceString, const_fragment_char) {
-		r.referencePointer, err = gojsonpointer.NewJsonPointer(jsonReferenceString[1:])
-		if err != nil {
-			return nil
-		}
-		r.HasFragmentOnly = true
+	if refUrl.Scheme != "" && refUrl.Host != "" {
+		r.HasFullUrl = true
 	} else {
-
-		r.referenceUrl, err = url.Parse(jsonReferenceString)
-		if err != nil {
-			return nil
-		}
-
-		if r.referenceUrl.Scheme != "" && r.referenceUrl.Host != "" {
-			r.HasFullUrl = true
-		} else {
+		if refUrl.Path != "" {
 			r.HasUrlPathOnly = true
-		}
-
-		r.HasFileScheme = r.referenceUrl.Scheme == "file"
-		r.HasFullFilePath = strings.HasPrefix(r.GetUrl().Path, "/")
-
-		r.referencePointer, err = gojsonpointer.NewJsonPointer(r.referenceUrl.Fragment)
-		if err != nil {
-			return nil
+		} else if refUrl.RawQuery == "" && refUrl.Fragment != "" {
+			r.HasFragmentOnly = true
 		}
 	}
 
-	return nil
+	r.HasFileScheme = refUrl.Scheme == "file"
+	r.HasFullFilePath = strings.HasPrefix(refUrl.Path, "/")
+
+	// invalid json-pointer error means url has no json-pointer fragment. simply ignore error
+	r.referencePointer, _ = gojsonpointer.NewJsonPointer(refUrl.Fragment)
+
+	return
 }
 
 // Creates a new reference from a parent and a child
 // If the child cannot inherit from the parent, an error is returned
 func (r *JsonReference) Inherits(child JsonReference) (*JsonReference, error) {
-
-	if !r.HasFileScheme && !child.HasFileScheme {
-		return r.inheritsImplHttp(child)
+	childUrl := child.GetUrl()
+	parentUrl := r.GetUrl()
+	if childUrl == nil {
+		return nil, errors.New("childUrl is nil!")
+	}
+	if parentUrl == nil {
+		return nil, errors.New("parentUrl is nil!")
 	}
 
-	if r.HasFileScheme && (child.HasFileScheme || child.HasFragmentOnly) {
-		return r.inheritsImplFile(child)
-	}
-
-	return nil, errors.New("References are not compatible")
-
-}
-
-func (r *JsonReference) inheritsImplFile(child JsonReference) (*JsonReference, error) {
-
-	if !r.HasFullFilePath {
-		return nil, errors.New("Parent reference must be canonical")
-	}
-
-	childReference := child.String()
-
-	if child.HasFragmentOnly {
-		childReference = r.GetUrl().Scheme + "://" + r.GetUrl().Path + child.String()
-	}
-
-	inheritedReference, err := NewJsonReference(childReference)
+	ref, err := NewJsonReference(parentUrl.ResolveReference(childUrl).String())
 	if err != nil {
 		return nil, err
 	}
-
-	return &inheritedReference, nil
-}
-
-func (r *JsonReference) inheritsImplHttp(child JsonReference) (*JsonReference, error) {
-
-	if !r.HasFullUrl {
-		return nil, errors.New("Parent reference must be canonical")
-	}
-
-	if r.HasFullUrl && child.HasFullUrl {
-		if r.referenceUrl.Scheme != child.referenceUrl.Scheme {
-			return nil, errors.New("References have different schemes")
-		}
-		if r.referenceUrl.Host != child.referenceUrl.Host {
-			return nil, errors.New("References have different hosts")
-		}
-	}
-
-	inheritedReference, err := NewJsonReference(r.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if child.HasFragmentOnly {
-		inheritedReference.referenceUrl.Fragment = child.referencePointer.String()
-		inheritedReference.referencePointer = child.referencePointer
-	}
-	if child.HasUrlPathOnly {
-		inheritedReference.referenceUrl.Path = child.referenceUrl.Path
-	}
-	if child.HasFullUrl {
-		inheritedReference.referenceUrl.Fragment = child.referenceUrl.Fragment
-		inheritedReference.referenceUrl.Path = child.referenceUrl.Path
-	}
-	return &inheritedReference, nil
-
-	return nil, nil
+	return &ref, err
 }
