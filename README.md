@@ -1,9 +1,6 @@
 # gojsonreference
 An implementation of JSON Reference - Go language
 
-## Status
-Work in progress ( 90% done )
-
 ## Dependencies
 https://github.com/xeipuuv/gojsonpointer
 
